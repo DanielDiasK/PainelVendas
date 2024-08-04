@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Vendas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #1e1e1e;
+            padding-top: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-radius: 10px;
+            transition: width 0.3s;
+            z-index: 1000; /* Ensure sidebar stays on top */
+        }
+
+        .sidebar .toggle-btn {
+            display: none;
+        }
+
+        .sidebar .profile {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .sidebar .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .sidebar .profile .greeting {
+            font-size: 1.2em;
+            color: #ffffff;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px 20px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .sidebar ul li a {
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .sidebar ul li a .icon {
+            margin-right: 15px;
+            font-size: 1.5em;
+        }
+
+        .sidebar ul li.active {
+            background-color: #333;
+            border-radius: 10px;
+            margin: -2px;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+            width: calc(100% - 260px);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #00adb5;
+        }
+
+        .card .title {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .card .description {
+            font-size: 1.2em;
+            color: #cccccc;
+        }
+
+        .card.full-width {
+            width: 100%;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .list-item .icon {
+            margin-right: 15px;
+            font-size: 1.5em;
+            color: #00adb5;
+        }
+
+        .list-item .name {
+            flex: 1;
+        }
+
+        .list-item .sales {
+            color: #cccccc;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding-top: 60px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                overflow-y: auto; /* Allow scrolling if content overflows */
+            }
+
+            .sidebar .toggle-btn {
+                display: block;
+                position: absolute;
+                top: 15px;
+                left: 10px;
+                background-color: #1e1e1e;
+                border: none;
+                color: #ffffff;
+                padding: 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .sidebar.active {
+                width: 250px;
+            }
+
+            .main-content {
+                margin-left: 60px;
+                width: calc(100% - 60px);
+                flex-direction: column;
+            }
+
+            .main-content.active {
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+
+            .sidebar ul li {
+                justify-content: center;
+                border-bottom: none;
+            }
+
+            .sidebar ul li a .icon {
+                margin-right: 0;
+            }
+
+            .sidebar ul li a .text {
+                display: none;
+            }
+
+            .sidebar.active ul li a .text {
+                display: inline;
+                margin-left: 15px;
+            }
+
+            .sidebar .profile .greeting {
+                display: none;
+            }
+
+            .sidebar .profile {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <div class="profile">
+                <img src="https://via.placeholder.com/40" alt="Foto de Perfil">
+                <div class="greeting">Olá, Daniel</div>
+            </div>
+            <ul>
+                <li class="active"><a href="#"><i class="fas fa-home icon"></i><span class="text">Início</span></a></li>
+                <li><a href="#"><i class="fas fa-chart-line icon"></i><span class="text">Vendas</span></a></li>
+                <li><a href="#"><i class="fas fa-box icon"></i><span class="text">Produtos</span></a></li>
+                <li><a href="#"><i class="fas fa-users icon"></i><span class="text">Clientes</span></a></li>
+                <li><a href="#"><i class="fas fa-cogs icon"></i><span class="text">Configurações</span></a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="card">
+                <i class="fas fa-chart-bar icon"></i>
+                <div class="title">Vendas Totais</div>
+                <div class="description">R$ 10.000,00</div>
+            </div>
+            <div class="card">
+                <i class="fas fa-box icon"></i>
+                <div class="title">Produtos Vendidos</div>
+                <div class="description">200</div>
+            </div>
+            <div class="card">
+                <i class="fas fa-users icon"></i>
+                <div class="title">Novos Clientes</div>
+                <div class="description">50</div>
+            </div>
+            <div class="card full-width">
+                <div class="title">Total Vendidos</div>
+                <canvas id="salesChart"></canvas>
+            </div>
+            <div class="card full-width">
+                <div class="title">Produtos Mais Vendidos</div>
+                <div class="list-item">
+                    <i class="fas fa-box icon"></i>
+                    <div class="name">Produto 1</div>
+                    <div class="sales">100 vendas</div>
+                </div>
+                <div class="list-item">
+                    <i class="fas fa-box icon"></i>
+                    <div class="name">Produto 2</div>
+                    <div class="sales">80 vendas</div>
+                </div>
+                <div class="list-item">
+                    <i class="fas fa-box icon"></i>
+                    <div class="name">Produto 3</div>
+                    <div class="sales">50 vendas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.main-content').classList.toggle('active');
+        }
+
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Produto 1', 'Produto 2', 'Produto 3'],
+                datasets: [{
+                    label: 'Total Vendidos',
+                    data: [100, 80, 50],
+                    backgroundColor: ['#00adb5', '#393e46', '#007bff'],
+                    borderColor: ['#00adb5', '#393e46', '#007bff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
